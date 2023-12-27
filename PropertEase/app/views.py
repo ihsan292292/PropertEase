@@ -127,6 +127,48 @@ def add_assign_tenant(request):
         form2 = TenantUnitAssignmentForm()
     return render(request,'add-tenant.html',{'tenants':tenants,'units':units})
 
-
-
-
+def view_property(request):
+    tenant_property = TenantUnitAssignment.objects.all()
+    pro_name = []
+    pro_address = []
+    pro_locations = []
+    pro_features = []
+    
+    unit_image = []
+    unit_type = []
+    unit_rent_cost = []
+    unit_is_occu = []
+    
+    tenant_name = []
+    t_add =[]
+    t_doc = []
+    agg_date = []
+    rent_date = []
+    
+    for i in tenant_property:
+        pro_name.append(i.unit.property.name)
+        pro_address.append(i.unit.property.address)
+        pro_locations.append(i.unit.property.location)
+        pro_features.append(i.unit.property.features)
+        
+        image=str(i.unit.image).split('/')[-1]
+        unit_image.append(image)
+        
+        unit_type.append(i.unit.type)
+        unit_rent_cost.append(i.unit.rent_cost)
+        unit_is_occu.append(i.unit.is_occupied)
+        unit_occ = ['Occupied' if value else 'Not Occupied' for value in unit_is_occu]
+        
+        tenant_name.append(i.tenant.name)
+        t_add.append(i.tenant.address)
+        t_doc.append(i.tenant.document_proof)
+        agg_date.append(i.agreement_end_date)
+        rent_date.append(i.monthly_rent_date)
+    mylist=zip(pro_name,pro_address,pro_locations,pro_features,
+               unit_image,unit_type,unit_rent_cost,unit_occ
+               ,tenant_name,t_add,t_doc,agg_date,rent_date)
+    print(pro_name)
+    print(pro_address)
+    print(rent_date)
+    
+    return render(request,'property-grid.html',{'tenant_property':mylist})
