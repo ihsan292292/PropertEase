@@ -42,6 +42,7 @@ class Unit(models.Model):
     
 class Tenant(models.Model):
     name = models.CharField(max_length=100)
+    photo = models.FileField(upload_to='tenant_photo')
     address = models.TextField()
     document_proof = models.FileField(upload_to='tenant_documents')
     

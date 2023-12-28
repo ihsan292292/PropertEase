@@ -5,12 +5,50 @@ from .forms import *
 from django.contrib import messages
 from .models import *
 import re
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 
 # Create your views here.
 
 def index(request):
-    return render(request,'index.html')
+    tenant_property = TenantUnitAssignment.objects.all()
+    tenant = Tenant.objects.all()
+    pid = []
+    pro_name = []
+    pro_address = []
+    pro_locations = []
+    pro_features = []
+    
+    unit_image = []
+    unit_type = []
+    unit_rent_cost = []
+    unit_is_occu = []
+    
+    for i in tenant:
+        pid.append(i.id)
+    for i in tenant_property:
+        
+        pro_name.append(i.unit.property.name)
+        pro_address.append(i.unit.property.address)
+        pro_locations.append(i.unit.property.location)
+        pro_features.append(i.unit.property.features)
+        
+        image=str(i.unit.image).split('/')[-1]
+        unit_image.append(image)
+        
+        unit_type.append(i.unit.type)
+        unit_rent_cost.append(i.unit.rent_cost)
+        unit_is_occu.append(i.unit.is_occupied)
+        unit_occ = ['Occupied' if value else 'Not Occupied' for value in unit_is_occu]
+        
+    mylist=zip(pid,pro_name,pro_address,pro_locations,pro_features,
+               unit_image,unit_type,unit_rent_cost,unit_occ
+    )
+    mylist2=zip(pid,pro_name,pro_address,pro_locations,pro_features,
+               unit_image,unit_type,unit_rent_cost,unit_occ
+    )
+    
+    unit = TenantUnitAssignment.objects.all()
+    return render(request,'index.html',{'data':mylist,'units':unit,'data2':mylist2})
 
 
 def admin_reg(request):
@@ -47,6 +85,10 @@ def admin_log(request):
             return HttpResponse("login failed!")
     return render(request,'admin_login.html')
 
+def admin_logout(request):
+    logout(request)
+    return redirect(index)
+
 def admin_index(request):
     id1 = request.session['a_id']
     usr = regmodel.objects.get(id=id1)
@@ -60,7 +102,7 @@ def add_property(request):
         if 'property_form' in request.POST:
             form1 = PropertyForm(request.POST)
             if form1.is_valid():
-                form1.save()
+                form1.save()                    
                 messages.success(request, 'Property added successfully!!')
                 return redirect('add-property') 
 
@@ -104,10 +146,13 @@ def add_assign_tenant(request):
     if request.method == 'POST':
         if 'tenant_add_form' in request.POST:
             name = request.POST.get('name')
+            photo = request.FILES.get('photo')
             address = request.POST.get('address')
             file = request.FILES.get('document_proof')
-            t = Tenant(name=name,address=address,document_proof=file)
+            t = Tenant(name=name,photo=photo,address=address,document_proof=file)
             t.save()
+            for i in tenants:
+                request.session['t_id'] = i.id
             messages.success(request, 'Tenant details added successfully!!')
             return redirect('add_assign_tenant')
 
@@ -167,8 +212,47 @@ def view_property(request):
     mylist=zip(pro_name,pro_address,pro_locations,pro_features,
                unit_image,unit_type,unit_rent_cost,unit_occ
                ,tenant_name,t_add,t_doc,agg_date,rent_date)
-    print(pro_name)
-    print(pro_address)
-    print(rent_date)
+    # print(pro_name)
+    # print(pro_address)
+    # print(rent_date)
+    # print(pro_name)
+    # print(unit_image)
     
     return render(request,'property-grid.html',{'tenant_property':mylist})
+
+def property_single(request,id1):
+    pr = Property.objects.get(id=id1)
+    unit = Unit.objects.get(id = id1)
+    print(id1)
+    print(pr)
+    return render(request,'property-single.html',{'pro':pr,'units':unit})
+
+def tenants(request):
+    tenants = Tenant.objects.all()
+    id = []
+    name = []
+    photo = []
+    address = []
+    doc = []
+    for i in tenants:
+        id.append(i.id)
+        name.append(i.name)
+        image=str(i.photo).split('/')[-1]
+        photo.append(image)
+        address.append(i.address)
+        docm=str(i.document_proof).split('/')[-1]
+        doc.append(docm)
+        doc.append(i.document_proof)
+    mylist = zip(id,name,photo,address,doc)
+    return render(request,'tenants.html',{'tenant':mylist})
+
+def tenant_dtl(request,id):
+    t_dtl = Tenant.objects.get(id=id)
+    print(t_dtl)
+    print(t_dtl.document_proof)
+    print(t_dtl.photo)
+    tenant_assignments = TenantUnitAssignment.objects.filter(tenant=t_dtl)
+    
+    
+    return render(request,'tenant-details.html',{'tenant':t_dtl,'tl':tenant_assignments})
+

@@ -144,11 +144,11 @@
         <ul class="navbar-nav">
 
           <li class="nav-item">
-            <a class="nav-link active" href="index.html">Home</a>
+            <a class="nav-link active" href="{% url 'admin-index' %}">Home</a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link " href="about.html">About</a>
+            <a class="nav-link " href="{% url 'tenants' %}">Tenants</a>
           </li>
 
           <li class="nav-item">
@@ -164,6 +164,7 @@
             <div class="dropdown-menu">
               <a class="dropdown-item " href="{% url 'add-property' %}">Add Property</a>
               <a class="dropdown-item " href="{% url 'add_assign_tenant' %}">Add Tenant and Assign</a>
+              <a class="dropdown-item " href="{% url 'admin_logout' %}">Logout</a>
             </div>
           </li>
           <li class="nav-item">
@@ -903,7 +904,7 @@
                 <a href="#">Home</a>
               </li>
               <li class="list-inline-item">
-                <a href="#">About</a>
+                <a href="{% url 'tenants' %}">Tenants</a>
               </li>
               <li class="list-inline-item">
                 <a href="#">Property</a>

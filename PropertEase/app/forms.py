@@ -14,7 +14,7 @@ class UnitForm(forms.ModelForm):
 class TenantForm(forms.ModelForm):
     class Meta:
         model = Tenant
-        fields = ['name', 'address', 'document_proof']
+        fields = ['name','photo', 'address', 'document_proof']
 
 class TenantUnitAssignmentForm(forms.ModelForm):
     class Meta:
